@@ -5,6 +5,7 @@ window.onload = (function () {
     document.getElementById('search')
         .addEventListener('keyup', (ev) => {
             alternatives.innerHTML = buildSearchAlternatives(ev.target.value)
+                .sort((alt1, alt2) => alt2[1] - alt1[1])
                 .map(([searchAlt, weight]) => `<span style="font-size: ${weight}em">${searchAlt} </span>`)
                 .reduce((html, alt) => html + alt, '');
         });
@@ -30,10 +31,11 @@ function buildSearchAlternatives(search) {
         for (const termAlts of termsAlts) {
             const termAlt = termAlts[Math.floor(i / base) % termAlts.length];
             searchAlt[0] = `${searchAlt[0]} ${termAlt[0]}`;
-            searchAlt[1] = searchAlt[1] + termAlt[1] / termsAlts.length;
+            searchAlt[1] = searchAlt[1] + termAlt[1];
             base *= termAlts.length;
         }
         searchAlt[0] = searchAlt[0].substr(1);
+        searchAlt[1] = searchAlt[1] / termsAlts.length;
         searchAlts.push(searchAlt);
     }
 
