@@ -1,9 +1,44 @@
 'use strict';
 
-window.onload = (function() {
-
+window.onload = (function () {
+    const alternatives = document.getElementById('alternatives');
+    document.getElementById('search')
+        .addEventListener('keyup', (ev) => {
+            alternatives.innerHTML = buildSearchAlternatives(ev.target.value)
+                .map(([searchAlt, weight]) => `<span style="font-size: ${weight}em">${searchAlt} </span>`)
+                .reduce((html, alt) => html + alt, '');
+        });
 });
 
+function buildSearchAlternatives(search) {
+    const terms = search.split(' ');
+    const termsAlts = [];
+    const searchAlts = [];
+
+    for (const term of terms) {
+        termsAlts.push(buildMisspellingAlternatives(term.trim()));
+    }
+
+    let n = 1;
+    for (const termAlts of termsAlts) {
+        n *= termAlts.length;
+    }
+
+    for (let i = 0; i < n; i++) {
+        const searchAlt = ['', 0];
+        let base = 1;
+        for (const termAlts of termsAlts) {
+            const termAlt = termAlts[Math.floor(i / base) % termAlts.length];
+            searchAlt[0] = `${searchAlt[0]} ${termAlt[0]}`;
+            searchAlt[1] = searchAlt[1] + termAlt[1] / termsAlts.length;
+            base *= termAlts.length;
+        }
+        searchAlt[0] = searchAlt[0].substr(1);
+        searchAlts.push(searchAlt);
+    }
+
+    return searchAlts;
+}
 
 const replacements = {
     prefix: {
@@ -37,13 +72,15 @@ const replacements = {
         'l': 'u',
         'n': 'm',
         'm': 'n',
+        'ão': 'am',
+        'am': 'ão',
     }
 };
 
 function buildMisspellingAlternatives(term) {
     const alternatives = [[term, 1]];
     const matches = [];
-    
+
     for (const pattern of Object.keys(replacements.prefix)) {
         const prefix = term.substr(0, pattern.length);
         if (prefix == pattern) {
@@ -55,7 +92,7 @@ function buildMisspellingAlternatives(term) {
     if (term.length > 2) {
         const middle = term.substr(1, term.length - 1);
         for (const pattern of Object.keys(replacements.middle)) {
-            for (let i = 0;i < middle.length; i += pattern.length) {
+            for (let i = 0; i < middle.length; i += pattern.length) {
                 const prefix = term.substr(i, pattern.length);
                 if (prefix == pattern) {
                     matches.push([pattern, i]);
@@ -91,44 +128,9 @@ function buildMisspellingAlternatives(term) {
                 replacementsCount++;
             }
         }
-        const weight = (term.length - replacementsCount)/term.length;
+        const weight = (term.length - replacementsCount) / term.length;
         alternatives.push([alt, weight]);
     }
 
     return alternatives;
 }
-
-console.log(buildMisspellingAlternatives('tylenol ascorbico'));
-
-function buildSearchAlternatives(search) {
-    const ALTERNATIVES_LIMIT = 100;
-    const terms = search.split(' ');
-    const termsAlts = [];
-    const searchAlts = [];
-    
-    for (const term of terms) {
-        termsAlts.push(buildMisspellingAlternatives(term.trim()));
-    }
-
-    let n = 1;
-    for (const termAlts of termsAlts) {
-        n *= termAlts.length;
-    }
-
-    for (let i = 0; i < n && i < ALTERNATIVES_LIMIT; i++) {
-        const searchAlt = ['', 0];
-        let base = 1;
-        for (const termAlts of termsAlts) {
-            const termAlt = termAlts[Math.floor(i / base) % termAlts.length];
-            searchAlt[0] = `${searchAlt[0]} ${termAlt}`;
-            searchAlt[1] = searchAlt[1] + termAlt[1]/termsAlts.length;
-            base *= termAlts.length;
-        }
-        searchAlt[0] = searchAlt[0].substr(1);
-        searchAlts.push(searchAlt);
-    }
-
-    return searchAlts;
-}
-
-console.log(buildSearchAlternatives('tylenol ascorbico'));
