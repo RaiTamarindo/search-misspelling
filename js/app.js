@@ -60,6 +60,10 @@ const replacements = {
     middle: {
         'ç': 'ss',
         'ss': 'ç',
+        'sse': 'ce',
+        'ce': 'sse',
+        'ssi': 'ci',
+        'ci': 'ssi',
         'x': 'ch',
         'ch': 'x',
         'np': 'mp',
@@ -70,6 +74,10 @@ const replacements = {
         'i': 'y',
     },
     suffix: {
+        'sse': 'ce',
+        'ce': 'sse',
+        'ssi': 'ci',
+        'ci': 'ssi',
         'u': 'l',
         'l': 'u',
         'n': 'm',
