@@ -95,7 +95,6 @@ function buildMisspellingAlternatives(term) {
         const prefix = term.substr(0, pattern.length);
         if (prefix == pattern) {
             matches.push([pattern, 0]);
-            break;
         }
     }
 
@@ -113,10 +112,9 @@ function buildMisspellingAlternatives(term) {
 
     for (const pattern of Object.keys(replacements.suffix)) {
         const i = term.length - pattern.length;
-        const suffix = term.substr(i, pattern.length)
+        const suffix = term.substr(i, pattern.length);
         if (suffix == pattern) {
             matches.push([pattern, i]);
-            break;
         }
     }
 
