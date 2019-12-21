@@ -90,10 +90,10 @@ function buildMisspellingAlternatives(term) {
     }
 
     if (term.length > 2) {
-        const middle = term.substr(1, term.length - 1);
+        const middle = term.substring(1, term.length - 1);
         for (const pattern of Object.keys(replacements.middle)) {
             for (let i = 0; i < middle.length; i += pattern.length) {
-                const prefix = term.substr(i, pattern.length);
+                const prefix = middle.substr(i, pattern.length);
                 if (prefix == pattern) {
                     matches.push([pattern, i]);
                 }
