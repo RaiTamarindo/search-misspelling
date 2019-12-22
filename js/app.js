@@ -146,7 +146,7 @@ function buildMisspellingAlternatives(input) {
                     replacementsCount++;
                 }
             }
-            const weight = (term.length - (replacementsCount + replacementOffsets[t])) / term.length;
+            const weight = toIntRange(term.length - (replacementsCount + replacementOffsets[t]), 0, term.length) / term.length;
             if (!dedupMap[alt]) {
                 alternatives.push([alt, weight]);
                 dedupMap[alt] = true;
