@@ -127,8 +127,6 @@ function buildMisspellingAlternatives(input) {
             }
         }
 
-        console.log(matches)
-
         const n = 1 << matches.length;
         for (let i = 0; i < n; i++) {
             let alt = term;
@@ -150,7 +148,6 @@ function buildMisspellingAlternatives(input) {
             }
             const weight = (term.length - (replacementsCount + replacementOffsets[t])) / term.length;
             if (!dedupMap[alt]) {
-                console.log
                 alternatives.push([alt, weight]);
                 dedupMap[alt] = true;
             }
