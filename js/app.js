@@ -24,8 +24,7 @@ function getRandomColorWithComplement() {
         Math.floor(Math.random() * 255),
         Math.floor(Math.random() * 255),
     ];
-    const p = Math.max(red, green, blue) / 255;
-    const k = p > 0.5 ? 0.5 : 1.5;
+    const k = (Math.max(red, green, blue) / 255) > 0.5 ? 0.4 : 1.6;
     return [
         // RGB
         padStart(2, '0', red.toString(16)) +
@@ -87,7 +86,7 @@ const misspellings = {
     },
     suffix: {
         'sse': 'ce', 'ce': 'sse', 'ssi': 'ci', 'ci': 'ssi', 'au': 'al', 'eu': 'el', 'iu': 'il', 'ou': 'ol', 'al': 'au', 'el': 'eu', 'il': 'iu',
-        'ol': 'ou', 'n': 'm', 'm': 'n', 'ão': 'am', 'am': 'ão',
+        'ol': 'ou', 'n': 'm', 'm': 'n', 'ão': 'am', 'am': 'ão', 'ao': 'ão',
     }
 };
 
