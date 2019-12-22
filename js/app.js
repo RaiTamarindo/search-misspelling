@@ -1,15 +1,53 @@
 'use strict';
 
+const colors = [];
+
 window.onload = (function () {
     const alternatives = document.getElementById('alternatives');
-    document.getElementById('search')
-        .addEventListener('keyup', (ev) => {
-            alternatives.innerHTML = buildSearchAlternatives(ev.target.value)
-                .sort((alt1, alt2) => alt2[1] - alt1[1])
-                .map(([searchAlt, weight]) => `<span style="font-size: ${weight}em">${searchAlt} </span>`)
-                .reduce((html, alt) => html + alt, '');
-        });
+    document.getElementById('search').addEventListener('keyup', (ev) => {
+        alternatives.innerHTML = buildSearchAlternatives(ev.target.value)
+            .sort((alt1, alt2) => alt2[1] - alt1[1])
+            .map(([searchAlt, weight], i) => {
+                if (!colors[i]) {
+                    colors[i] = getRandomColorWithComplement();
+                }
+                const [rgb, rgbc] = colors[i];
+                return `<span style="font-size: ${weight}em; color: #${rgb}; background-color: #${rgbc};">${searchAlt}</span>`;
+            })
+            .reduce((html, alt) => html + alt, '');
+    });
 });
+
+function getRandomColorWithComplement() {
+    const [red, green, blue] = [
+        Math.floor(Math.random() * 255),
+        Math.floor(Math.random() * 255),
+        Math.floor(Math.random() * 255),
+    ];
+    const p = Math.max(red, green, blue) / 255;
+    const k = p > 0.5 ? 0.5 : 1.5;
+    return [
+        // RGB
+        padStart(2, '0', red.toString(16)) +
+        padStart(2, '0', green.toString(16)) +
+        padStart(2, '0', blue.toString(16)),
+        // RGB complement
+        padStart(2, '0', toIntRange(k * red, 0, 255).toString(16)) +
+        padStart(2, '0', toIntRange(k * green, 0, 255).toString(16)) +
+        padStart(2, '0', toIntRange(k * blue, 0, 255).toString(16)),
+    ];
+}
+
+function toIntRange(x, min, max) {
+    return Math.min(Math.max(Math.floor(x), min), max);
+}
+
+function padStart(count, pad, str) {
+    while (str.length < count) {
+        str = pad + str;
+    }
+    return str;
+}
 
 function buildSearchAlternatives(search) {
     const terms = search.split(' ');
@@ -90,7 +128,6 @@ function buildMisspellingAlternatives(input) {
 
     for (const [t, term] of [input, inputReplaced].entries()) {
         const matches = [];
-        console.log('term: ', term);
 
         for (const pattern of Object.keys(misspellings.prefix)) {
             const prefix = term.substr(0, pattern.length);
@@ -138,7 +175,6 @@ function buildMisspellingAlternatives(input) {
                 }
             }
             const weight = (term.length - (replacementsCount + replacementOffsets[t])) / term.length;
-            console.log(alt);
             if (!dedupMap[alt]) {
                 alternatives.push([alt, weight]);
                 dedupMap[alt] = true;
