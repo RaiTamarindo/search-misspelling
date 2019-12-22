@@ -4,7 +4,7 @@ const colors = [];
 
 window.onload = (function () {
     const alternatives = document.getElementById('alternatives');
-    document.getElementById('search').addEventListener('keyup', (ev) => {
+    document.getElementById('search').addEventListener('input', (ev) => {
         alternatives.innerHTML = buildSearchAlternatives(ev.target.value)
             .sort((alt1, alt2) => alt2[1] - alt1[1])
             .map(([searchAlt, weight], i) => {
@@ -76,47 +76,18 @@ function buildSearchAlternatives(search) {
 }
 
 const misspellings = {
-    prefix: {
-        'se': 'ce',
-        'ce': 'se',
-        'si': 'ci',
-        'ci': 'si',
-        'h': '',
-        'a': 'ha',
-        'e': 'he',
-        'i': 'hi',
-        'o': 'ho',
-        'u': 'hu',
-        'x': 'ch',
-        'ch': 'x',
-    },
+    prefix: { 'se': 'ce', 'ce': 'se', 'si': 'ci', 'ci': 'si', 'h': '', 'a': 'ha', 'e': 'he', 'i': 'hi', 'o': 'ho', 'u': 'hu', 'x': 'ch', 'ch': 'x' },
     middle: {
-        'ç': 'ss',
-        'ss': 'ç',
-        'sse': 'ce',
-        'ce': 'sse',
-        'ssi': 'ci',
-        'ci': 'ssi',
-        'x': 'ch',
-        'ch': 'x',
-        'np': 'mp',
-        'nb': 'mb',
-        'z': 's',
-        's': 'z',
-        'y': 'i',
-        'i': 'y',
+        'ç': 'ss', 'ss': 'ç', 'sse': 'ce', 'ce': 'sse', 'ssi': 'ci', 'ci': 'ssi', 'x': 'ch', 'ch': 'x', 'np': 'mp', 'nb': 'mb', 'aza': 'asa', 'aze': 'ase',
+        'azi': 'asi', 'azo': 'aso', 'azu': 'asu', 'eza': 'esa', 'eze': 'ese', 'ezi': 'esi', 'ezo': 'eso', 'ezu': 'esu', 'iza': 'isa', 'ize': 'ise',
+        'izi': 'isi', 'izo': 'iso', 'izu': 'isu', 'oza': 'osa', 'oze': 'ose', 'ozi': 'osi', 'ozo': 'oso', 'ozu': 'osu', 'uza': 'usa', 'uze': 'use',
+        'uzi': 'usi', 'uzo': 'uso', 'uzu': 'usu', 'asa': 'aza', 'ase': 'aze', 'asi': 'azi', 'aso': 'azo', 'asu': 'azu', 'esa': 'eza', 'ese': 'eze',
+        'esi': 'ezi', 'eso': 'ezo', 'esu': 'ezu', 'isa': 'iza', 'ise': 'ize', 'isi': 'izi', 'iso': 'izo', 'isu': 'izu', 'osa': 'oza', 'ose': 'oze',
+        'osi': 'ozi', 'oso': 'ozo', 'osu': 'ozu', 'usa': 'uza', 'use': 'uze', 'usi': 'uzi', 'uso': 'uzo', 'usu': 'uzu', 'y': 'i', 'i': 'y',
     },
     suffix: {
-        'sse': 'ce',
-        'ce': 'sse',
-        'ssi': 'ci',
-        'ci': 'ssi',
-        'u': 'l',
-        'l': 'u',
-        'n': 'm',
-        'm': 'n',
-        'ão': 'am',
-        'am': 'ão',
+        'sse': 'ce', 'ce': 'sse', 'ssi': 'ci', 'ci': 'ssi', 'au': 'al', 'eu': 'el', 'iu': 'il', 'ou': 'ol', 'al': 'au', 'el': 'eu', 'il': 'iu',
+        'ol': 'ou', 'n': 'm', 'm': 'n', 'ão': 'am', 'am': 'ão',
     }
 };
 
@@ -156,19 +127,21 @@ function buildMisspellingAlternatives(input) {
             }
         }
 
+        console.log(matches)
+
         const n = 1 << matches.length;
         for (let i = 0; i < n; i++) {
             let alt = term;
             let replacementsCount = 0;
             for (let j = 0; j < matches.length; j++) {
                 if ((i >> j) & 1) {
-                    const offset = matches[j][1];
+                    const offset = matches[j][1] + alt.length - term.length;
                     const pattern = matches[j][0];
                     let replacement = misspellings.middle[matches[j][0]];
                     if (!offset) {
                         replacement = misspellings.prefix[matches[j][0]];
                     } else if (term.length - offset == pattern.length) {
-                        replacement = misspellings.suffix[matches[j][0]];
+                        replacement = misspellings.suffix[matches[j][0]] || replacement;
                     }
                     alt = alt.substr(0, offset) + alt.substr(offset).replace(pattern, replacement);
                     replacementsCount++;
@@ -176,6 +149,7 @@ function buildMisspellingAlternatives(input) {
             }
             const weight = (term.length - (replacementsCount + replacementOffsets[t])) / term.length;
             if (!dedupMap[alt]) {
+                console.log
                 alternatives.push([alt, weight]);
                 dedupMap[alt] = true;
             }
