@@ -135,7 +135,7 @@ function buildMisspellingAlternatives(input) {
             let replacementsCount = 0;
             for (let j = 0; j < matches.length; j++) {
                 if ((i >> j) & 1) {
-                    const offset = matches[j][1] + alt.length - term.length;
+                    const offset = matches[j][1];
                     const pattern = matches[j][0];
                     let replacement = misspellings.middle[matches[j][0]];
                     if (!offset) {
@@ -143,7 +143,8 @@ function buildMisspellingAlternatives(input) {
                     } else if (term.length - offset == pattern.length) {
                         replacement = misspellings.suffix[matches[j][0]] || replacement;
                     }
-                    alt = alt.substr(0, offset) + alt.substr(offset).replace(pattern, replacement);
+                    const start = offset + alt.length - term.length;
+                    alt = alt.substr(0, start) + alt.substr(start).replace(pattern, replacement);
                     replacementsCount++;
                 }
             }
